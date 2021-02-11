@@ -1,0 +1,62 @@
+
+<?php
+$giftwrap = $block->getGiftwrap();
+$giftwrap = $giftwrap->getData();
+$hiddenPrice = $block->getHiddenPrice();
+$message=$block->getGiftmessage();
+if (count($giftwrap) != 0 || $block->getGiftmessage() != '') {
+    ?>
+
+    <section class="admin__page-section">
+        <div class="admin__page-section-title">
+            <span class="title">Gift Wrap</span>
+        </div>
+        <div class="admin__page-section-content">
+
+            <?php
+            if (count($giftwrap) != 0) {
+                $giftwrapImg = $giftwrap[0]['image'];
+                $giftwrapName = $giftwrap[0]['title'];
+                $giftwrapPrice = $giftwrap[0]['price'];
+                $hiddenPrice = $block->getHiddenPrice();
+                ?>
+
+                <div class="admin__page-section-item giftOption">
+                    <div class="admin__page-section-item-title">
+                        <span class="title">Gift Option</span>
+                    </div>
+                    <div class="admin__page-section-item-content">
+                        <div class="giftOptionContent">
+                            <span>Wrap Name</span>
+                            <span><?php echo $giftwrapName;?></span>
+                        </div>
+                        <div class="giftOptionContent">
+                            <span>Price</span>
+                            <span>$<?php echo $giftwrapPrice;?></span>
+                        </div>
+                        <div class="giftOptionContent">
+                            <span>Hide Price</span>
+                            <?php if ($hiddenPrice == '1') { ?>
+                                <span>Yes</span>
+                            <?php } else { ?>
+                                <span>No</span>
+                            <?php } ?>
+                        </div>
+                    </div>
+                </div>
+
+            <?php }
+            if ($message != '') { ?>
+                <div class="admin__page-section-item giftMessage">
+                    <div class="admin__page-section-item-title">
+                        <span class="title">Gift Message</span>
+                    </div>
+                    <div class="admin__page-section-item-content">
+                        <?php echo $message;?>
+                    </div>
+                </div>
+            <?php } ?>
+        </div>
+    </section>
+
+<?php } ?>

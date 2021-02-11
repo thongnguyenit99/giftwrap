@@ -1,0 +1,46 @@
+.giftwrapImage {
+	width: 100% !important;
+	/*height: 135px;*/
+}
+
+.giftwrapTitle {
+	font-weight: bold;
+    margin: 5px 5px;
+}
+
+.giftwrapPrice {
+	margin: 5px 5px;
+}
+
+.giftwrap-slider-item {
+	padding: 7px;
+	cursor: pointer;
+}
+
+.giftwrap-slider-item.active {
+	border: 2px solid #C59B9C;
+    border-radius: 7px;
+}
+
+.admin__page-section-item.giftOption {
+	width: calc( (100%) * 0.5 - 30px );
+	float: left;
+}
+
+.admin__page-section-item.giftMessage {
+	width: calc( (100%) * 0.5 - 30px );
+	float: right;
+}
+
+.giftOptionContent {
+	display: flex;
+	justify-content: space-between;
+	margin-right: 0px;
+}
+th.mark {
+    font-size: 15px;
+}
+.mark, mark {
+    padding: .2em;
+    background-color: none;
+}

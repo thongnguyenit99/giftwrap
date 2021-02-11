@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="order_totals">
+            <block class="Team1\GiftwrapSlider\Block\Sales\Totals\Giftwrap" name="giftwrap" as="giftwrap"/>
+        </referenceContainer>
+        <referenceContainer name="content">
+            <block class="Team1\GiftwrapSlider\Block\Sales\Giftmessage" template="Team1_GiftwrapSlider::order/view/giftmessageFrontend.phtml" as="giftmessage" name="sales.order.giftmessage" after="-"/>
+        </referenceContainer>
+    </body>
+</page>

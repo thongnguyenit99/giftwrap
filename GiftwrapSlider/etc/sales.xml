@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<config>
+    <section name="quote">
+        <group name="totals">
+            <item name="giftwrap" instance="Team1\GiftwrapSlider\Model\Total\Quote\GiftwrapCustom" sort_order="300"/>
+        </group>
+    </section>
+    <section name="order_invoice">
+        <group name="totals">
+            <item name="giftwrap" instance="Team1\GiftwrapSlider\Model\Invoice\Total\Giftwrap" sort_order="160"/>
+        </group>
+    </section>
+    <section name="order_creditmemo">
+        <group name="totals">
+            <item name="giftwrap" instance="Team1\GiftwrapSlider\Model\Creditmemo\Total\Giftwrap" sort_order="160"/>
+        </group>
+    </section>
+</config>

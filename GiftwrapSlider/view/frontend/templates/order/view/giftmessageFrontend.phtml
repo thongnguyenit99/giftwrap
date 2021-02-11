@@ -1,0 +1,58 @@
+<?php
+// get data from block/sales/giftMessage.php
+$giftwrap = $block->getGiftwrap();
+$giftwrap = $giftwrap->getData();
+$message=$block->getGiftmessage();
+if (count($giftwrap) != 0 || $message != '') {
+?>
+    <!--Show Data When Order product  -->
+    <div class="block block-order-details-view block-order-details-view-giftmessage">
+        <div class="block-title">
+            <strong>Gift Wrap</strong>
+            <hr>
+        </div>
+        <div class="block-content">
+
+            <?php
+            if (count($giftwrap) > 0) {
+                $giftwrapImg = $giftwrap[0]['image'];
+                $giftwrapName = $giftwrap[0]['title'];
+                $giftwrapPrice = $giftwrap[0]['price'];
+                $hiddenPrice = $block->getHiddenPrice();
+                ?>
+                <div class="box box-order-giftoption ">
+                    <strong class="box-title"><span>Gift Option</span></strong>
+                    <div class="box-content">
+                        <div class="giftOptionContent">
+                            <div>Wrap Name </div>
+                            <div class="isName"><?php echo $giftwrapName;?></div>
+                        </div>
+                        <div class="giftOptionContent">
+                            <div>Price </div>
+                            <div class="isPrice">$<?php echo $giftwrapPrice;?></div>
+                        </div>
+                        <div class="giftOptionContent">
+                            <div>Hide Price </div>
+                            <?php if ($hiddenPrice == '1') { ?>
+                                <div class="isTrue">Yes</div>
+                            <?php } else { ?>
+                                <div class="isFail">No</div>
+                            <?php } ?>
+                        </div>
+                    </div>
+                </div>
+
+            <?php }
+            if ($message != '') { ?>
+
+                <div class="box box-order-giftmessage ">
+                    <strong class="box-title"><span>Gift Message</span></strong>
+                    <div class="box-content">
+                        <?php echo $block->getGiftmessage();?>
+                    </div>
+                </div>
+            <?php } ?>
+        </div>
+    </div>
+
+<?php } ?>

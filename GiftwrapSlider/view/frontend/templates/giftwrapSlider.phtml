@@ -1,0 +1,408 @@
+<?php  
+$giftwraps = $block->getCollection();
+$giftwrapArr = array();
+
+foreach ($giftwraps as $giftwrap) {
+	array_push($giftwrapArr, $giftwrap->getData());
+}
+
+?>
+
+<input type="checkbox" class="isUseGift" id="isUseGift" name="isUseGift" >
+<label class="isUseGiftLabel" for="isUseGift"> Make It a Gift</label>
+
+<div class="giftArea">
+
+    <p class="giftwrapNotice">Item(s) will be sent packaged in a gift box. Please remember, once enclosed you will be unable to see the contents of the package.</p>
+
+    <p class="giftwrapHeader">Choose the Gift Wrap</p>
+
+    <div class="giftwrap">
+        <div class="owl-carousel">
+            <?php foreach($giftwrapArr as $data): ?>
+                <div class="giftwrap-slider-item giftwrap<?= $data['giftwrap_id']; ?>">      
+                    <img src="<?= $block->getBaseImgUrl(),$data['image']; ?>" class="giftwrapImage">
+                    <p class="giftwrapTitle"><?= $data['title']; ?></p>
+                    <p class="giftwrapPrice" data-price="<?= $data['price']; ?>"><?= $block->getFormatedPrice($data['price']);?></p>
+                </div>
+            <?php endforeach ?>
+        </div>
+    </div>
+
+    <p class="giftMessageHeader">Add Gift Message</p>
+
+    <textarea class="giftmessageContent" rows="2" cols="50"></textarea>
+
+    <input type="checkbox" id="isHiddenPrice" name="isHiddenPrice" >
+    <label for="isHiddenPrice"> Hidden prices on the recipient's receipt</label>
+</div>
+
+<script>
+    require(["jquery", "owl-carousel"],function($) {
+        $(document).ready(function() {
+            $('.owl-carousel').owlCarousel({
+                loop:true,
+                margin:10,
+                responsiveClass:true,
+                navText: [
+                    '<span class="prev-btn"><i class="fas fa-chevron-left" style="font-size: 20px; color: #727272;"></i></span>',
+                    '<span class="next-btn"><i class="fas fa-chevron-right" style="font-size: 20px; color: #727272;"></i></span>'
+                ],
+                responsive:{
+                    0:{
+                        items:2,
+                        nav:true,
+                        loop:false
+                    },
+                    426:{
+                        items:4,
+                        nav:true,
+                        loop:false
+                    },
+                    1000:{
+                        items:4,
+                        nav:true,
+                        loop:false
+                    }
+                }
+            })
+        });
+    });
+</script>
+
+
+<script type="text/javascript">
+    require(['jquery'], function($) {
+        $(document).ready(function(){
+            var isUseGiftChecked = localStorage.getItem("isUseGift");
+            var isHiddenPriceChecked = localStorage.getItem("isHiddenPrice");
+            if (isUseGiftChecked == 1) {
+                isUseGiftChecked = true;
+                selectedGiftwrap = localStorage.getItem("selectedGiftwrap");
+                $("."+selectedGiftwrap).addClass("active");
+            } else {
+                isUseGiftChecked = false;
+            }
+            if (isHiddenPriceChecked == 1) {
+                isHiddenPriceChecked = true;
+            } else {
+                isHiddenPriceChecked = false;
+            }
+            $(".payment-method:nth-child(2) .isUseGift").prop('checked', isUseGiftChecked);
+            $(".payment-method:nth-child(3) .isUseGift").prop('checked', isUseGiftChecked);
+            $(".payment-method:nth-child(2) #isHiddenPrice").prop('checked', isHiddenPriceChecked);
+            $(".payment-method:nth-child(3) #isHiddenPrice").prop('checked', isHiddenPriceChecked);
+            if(
+                $(".payment-method:nth-child(2) .isUseGift").prop('checked') == true || 
+                $(".payment-method:nth-child(3) .isUseGift").prop('checked') == true) {
+                    $(".giftArea").css({"display": "block"});  // checked
+            }
+            else {
+                $(".giftArea").css({"display": "none"});  // unchecked
+            }
+
+            
+
+            $(".giftwrap-slider-item").click(function(event) {
+	           	var setGiftwrapUrl = "<?php echo $this->getUrl().'giftwrapslider/giftwrap/giftwrap'?>";
+                localStorage.setItem("selectedGiftwrap", 1);
+                var myClass = $(this).attr("class");
+                myClass = myClass.split(/\s+/);
+                localStorage.setItem("selectedGiftwrap", myClass[1]);
+	            $.ajax({
+	                url: setGiftwrapUrl,
+	                type: 'POST',
+	                data: {
+	                    giftwrapprice: $(this).find('.giftwrapPrice').attr("data-price"),
+                        giftwrapname: $(this).find('.giftwrapTitle').text()
+	                },
+	            	
+	            	complete: function(response) {                    
+		                console.log("Giftwrap set");
+		                console.log(response);   
+	                },
+                    success: function(data, status, xhr) {
+                        basegrandtotal = data.basegrandtotal.toFixed(2);
+                        $(".totals.giftwrap.excl > th").html('Gift Wrap ');
+                        $(".totals.giftwrap.excl").css({"display": "table-row"});
+                        $(".totals.giftwrap.excl > td > span").html(data.giftwrap);
+                        $(".grand.totals > td > strong > .price").html(data.grandtotal);
+                        $(".totals.charge > td > span").html("$" + basegrandtotal);
+                        $(".checkout-index-index .estimated-block .estimated-price").html(data.grandtotal);
+                        $(".giftwrap-slider-item.active").removeClass("active");
+                        $("."+myClass[1]).addClass("active");
+                        console.log(data.giftwrap);
+                    },
+
+                	error: function (xhr, status, errorThrown) {
+	                    console.log('Error happens. Try again.');
+	                    console.log(errorThrown);
+	                }
+	            });
+
+	        });
+
+            $('.giftmessageContent').bind('input propertychange', function() {
+                var setGiftmessageUrl = "<?php echo $this->getUrl().'giftwrapslider/giftwrap/giftmessage'?>";
+                $.ajax({
+                    url: setGiftmessageUrl,
+                    type: 'POST',
+                    data: {
+                        giftmessage: $(this).val(),
+                    },
+                    
+                    complete: function(response) {                    
+                        console.log("Giftmessage set");
+                        console.log(response);   
+                    },
+
+                    error: function (xhr, status, errorThrown) {
+                        console.log('Error happens. Try again.');
+                        console.log(errorThrown);
+                    }
+                });
+            });
+
+            $(".payment-method:nth-child(2) .isUseGift").change(function() {
+                if($(".payment-method:nth-child(2) .isUseGift").prop('checked') == true) {
+                    $(".giftArea").css({"display": "block"});  // checked
+                    localStorage.setItem("isUseGift", 1);
+                    $(".payment-method:nth-child(2) .isUseGift").prop('checked', true);
+                    $(".payment-method:nth-child(3) .isUseGift").prop('checked', true);
+                }
+                else {
+                    // $(".giftArea").css({"display": "none"});  // unchecked
+                    var removegiftUrl = "<?php echo $this->getUrl().'giftwrapslider/giftwrap/removegift'?>";
+                    localStorage.setItem("isUseGift", 0);
+                    $.ajax({
+                        url: removegiftUrl,
+                        type: 'POST',
+                        data: {
+                        },
+                        
+                        complete: function(response) {                    
+                            console.log("Remove gift");
+                            console.log(response);   
+                            // location.reload();
+                        },
+
+                        success: function(data, status, xhr) {
+                            basegrandtotal = data.basegrandtotal.toFixed(2);
+                            $(".payment-method:nth-child(2) .isUseGift").prop('checked', false);
+                            $(".payment-method:nth-child(3) .isUseGift").prop('checked', false);
+                            $(".giftArea").css({"display": "none"});
+                            $(".totals.giftwrap.excl > th").html('Giftwrap');
+                            $(".totals.giftwrap.excl").css({"display": "none"});
+                            $(".totals.giftwrap.excl > td > span").html(data.giftwrap);
+                            $(".grand.totals > td > strong > .price").html(data.grandtotal);
+                            $(".totals.charge > td > span").html("$" + basegrandtotal);
+                            $(".checkout-index-index .estimated-block .estimated-price").html(data.grandtotal);
+                            $(".giftwrap-slider-item.active").removeClass("active");
+                            localStorage.removeItem("isUseGift");
+                            localStorage.removeItem("selectedGiftwrap");
+                        },
+
+                        error: function (xhr, status, errorThrown) {
+                            console.log('Error happens. Try again.');
+                            console.log(errorThrown);
+                        }
+                    });
+                }
+            });
+
+            $(".payment-method:nth-child(3) .isUseGift").change(function() {
+                if($(".payment-method:nth-child(3) .isUseGift").prop('checked') == true) {
+                    $(".giftArea").css({"display": "block"});  // checked
+                    localStorage.setItem("isUseGift", 1);
+                    $(".payment-method:nth-child(2) .isUseGift").prop('checked', true);
+                    $(".payment-method:nth-child(3) .isUseGift").prop('checked', true);
+                }
+                else {
+                    var removegiftUrl = "<?php echo $this->getUrl().'giftwrapslider/giftwrap/removegift'?>";
+                    localStorage.setItem("isUseGift", 0);
+                    $.ajax({
+                        url: removegiftUrl,
+                        type: 'POST',
+                        data: {
+                        },
+                        
+                        complete: function(response) {                    
+                            console.log("Remove gift");
+                            console.log(response);   
+                        },
+
+                        success: function(data, status, xhr) {
+                            basegrandtotal = data.basegrandtotal.toFixed(2);
+                            $(".payment-method:nth-child(2) .isUseGift").prop('checked', false);
+                            $(".payment-method:nth-child(3) .isUseGift").prop('checked', false);
+                            $(".giftArea").css({"display": "none"});
+                            $(".totals.giftwrap.excl > th").html('Gift Wrap');
+                            $(".totals.giftwrap.excl").css({"display": "none"});
+                            $(".totals.giftwrap.excl > td > span").html(data.giftwrap);
+                            $(".grand.totals > td > strong > .price").html(data.grandtotal);
+                            $(".totals.charge > td > span").html("$" + basegrandtotal);
+                            $(".checkout-index-index .estimated-block .estimated-price").html(data.grandtotal);
+                            $(".giftwrap-slider-item.active").removeClass("active");
+                            localStorage.removeItem("isUseGift");
+                            localStorage.removeItem("selectedGiftwrap");
+                        },
+
+                        error: function (xhr, status, errorThrown) {
+                            console.log('Error happens. Try again.');
+                            console.log(errorThrown);
+                        }
+                    });
+                }
+            });
+
+            $(".payment-method:nth-child(2) #isHiddenPrice").change(function() {
+                if($(".payment-method:nth-child(2) #isHiddenPrice").prop('checked') == true) {
+                    var hiddenPriceUrl = "<?php echo $this->getUrl().'giftwrapslider/giftwrap/gifthideprice'?>";
+                    localStorage.setItem("isHiddenPrice", 1);
+                    $(".payment-method:nth-child(2) #isHiddenPrice").prop('checked', true);
+                    $(".payment-method:nth-child(3) #isHiddenPrice").prop('checked', true);
+                    $.ajax({
+                        url: hiddenPriceUrl,
+                        type: 'POST',
+                        data: {
+                            hiddenprice: '1'
+                        },
+                        
+                        complete: function(response) {                    
+                            console.log("Set hidden price");
+                            console.log(response);   
+                        },
+
+                        error: function (xhr, status, errorThrown) {
+                            console.log('Error happens. Try again.');
+                            console.log(errorThrown);
+                        }
+                    });
+                }
+                else {
+                    var hiddenPriceUrl = "<?php echo $this->getUrl().'giftwrapslider/giftwrap/gifthideprice'?>";
+                    localStorage.setItem("isHiddenPrice", 0);
+                    $.ajax({
+                        url: hiddenPriceUrl,
+                        type: 'POST',
+                        data: {
+                            hiddenprice: '0'
+                        },
+                        
+                        complete: function(response) {                    
+                            console.log("Set hidden price");
+                            console.log(response);   
+                        },
+
+                        success: function(data, status, xhr) {
+                            localStorage.removeItem("isHiddenPrice");
+                            $(".payment-method:nth-child(2) #isHiddenPrice").prop('checked', false);
+                            $(".payment-method:nth-child(3) #isHiddenPrice").prop('checked', false);
+                        },
+
+                        error: function (xhr, status, errorThrown) {
+                            console.log('Error happens. Try again.');
+                            console.log(errorThrown);
+                        }
+                    });
+                }
+            });
+
+            $(".payment-method:nth-child(3) #isHiddenPrice").change(function() {
+                if($(".payment-method:nth-child(3) #isHiddenPrice").prop('checked') == true) {
+                    var hiddenPriceUrl = "<?php echo $this->getUrl().'giftwrapslider/giftwrap/gifthideprice'?>";
+                    localStorage.setItem("isHiddenPrice", 1);
+                    $(".payment-method:nth-child(2) #isHiddenPrice").prop('checked', true);
+                    $(".payment-method:nth-child(3) #isHiddenPrice").prop('checked', true);
+                    $.ajax({
+                        url: hiddenPriceUrl,
+                        type: 'POST',
+                        data: {
+                            hiddenprice: '1'
+                        },
+                        
+                        complete: function(response) {                    
+                            console.log("Set hidden price");
+                            console.log(response);   
+                        },
+
+                        error: function (xhr, status, errorThrown) {
+                            console.log('Error happens. Try again.');
+                            console.log(errorThrown);
+                        }
+                    });
+                }
+                else {
+                    var hiddenPriceUrl = "<?php echo $this->getUrl().'giftwrapslider/giftwrap/gifthideprice'?>";
+                    localStorage.setItem("isHiddenPrice", 0);
+                    $.ajax({
+                        url: hiddenPriceUrl,
+                        type: 'POST',
+                        data: {
+                            hiddenprice: '0'
+                        },
+                        
+                        complete: function(response) {                    
+                            console.log("Set hidden price");
+                            console.log(response);   
+                        },
+
+                        success: function(data, status, xhr) {
+                            localStorage.removeItem("isHiddenPrice");
+                            $(".payment-method:nth-child(2) #isHiddenPrice").prop('checked', false);
+                            $(".payment-method:nth-child(3) #isHiddenPrice").prop('checked', false);
+                        },
+
+                        error: function (xhr, status, errorThrown) {
+                            console.log('Error happens. Try again.');
+                            console.log(errorThrown);
+                        }
+                    });
+                }
+            });
+
+            $(".giftwrapImage").height(150);
+            if ($(window).width() >= 768) { 
+                $(".giftwrapImage").height(100);
+            }
+            if ($(window).width() >= 1024) { 
+                $(".giftwrapImage").height(135);
+            }
+            if ($(window).width() >= 1440) { 
+                $(".giftwrapImage").height(150);
+            }
+                
+
+            $(".action.primary.checkout").click(function() {
+                localStorage.removeItem("isUseGift");
+                localStorage.removeItem("selectedGiftwrap");
+                localStorage.removeItem("isHiddenPrice");
+            });
+
+            if ($(".totals.giftwrap.excl > td > span").html() == '<?= $block->getCurrentCurrencySymbol() ?>0.00'
+                || $(".totals.giftwrap.excl > td > span").html() == '<?= $block->getCurrentCurrencySymbol() ?>0') {
+                $(".totals.giftwrap.excl").css({"display": "none"});
+            } else {
+                $(".totals.giftwrap.excl").css({"display": "table-row"});
+            }       
+        });
+        
+
+        $(window).on('resize', function(){
+            var win = $(this); //this = window
+            $(".giftwrapImage").height(150);
+            if (win.width() >= 768) { 
+                $(".giftwrapImage").height(90);
+            }
+            if (win.width() >= 1024) { 
+                $(".giftwrapImage").height(135);
+            }
+            if (win.width() >= 1440) { 
+                $(".giftwrapImage").height(150);
+            }
+            
+            
+        });
+    });
+</script>
+
